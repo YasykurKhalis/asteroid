@@ -1,18 +1,26 @@
 import pygame
 import circleshape
 import constants
+from explosion import explode
 from logger import log_event
 import random
 
 class Asteroid(circleshape.CircleShape):
     def __init__(self, x: float, y: float, radius: float) -> None:
         super().__init__(x, y, radius)
+        self.lumps = [random.uniform(0.75, 1.15) for _ in range(constants.ASTEROID_LUMP_POINTS)]
     
     def draw(self, screen: pygame.Surface):
-        pygame.draw.circle(screen, "white", self.position, self.radius, constants.LINE_WIDTH)
+        step = 360 / len(self.lumps)
+        points = [self.position + pygame.Vector2(0, self.radius * lump).rotate(i * step) for i, lump in enumerate(self.lumps)]
+        pygame.draw.polygon(screen, "white", points, constants.LINE_WIDTH)
+
+    def points(self) -> int:
+        return constants.ASTEROID_POINTS[round(self.radius / constants.ASTEROID_MIN_RADIUS) - 1]
     
     def split(self):
         self.kill()
+        explode(self.position, int(self.radius))
         if self.radius <= constants.ASTEROID_MIN_RADIUS:
             return
         log_event("asteroid_split")
@@ -29,3 +37,4 @@ class Asteroid(circleshape.CircleShape):
     
     def update(self, dt: float):
         self.position += self.velocity * dt
+        self.wrap()

@@ -34,8 +34,9 @@ class AsteroidField(pygame.sprite.Sprite):
         ),
     ]
 
-    def __init__(self) -> None:
+    def __init__(self, asteroids: pygame.sprite.Group) -> None:
         pygame.sprite.Sprite.__init__(self, self.containers)
+        self.asteroids = asteroids
         self.spawn_timer = 0.0
 
     def spawn(
@@ -46,7 +47,8 @@ class AsteroidField(pygame.sprite.Sprite):
 
     def update(self, dt: float) -> None:
         self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE_SECONDS:
+        # asteroids wrap instead of leaving, so cap them or the screen fills up
+        if self.spawn_timer > ASTEROID_SPAWN_RATE_SECONDS and len(self.asteroids) < ASTEROID_MAX_COUNT:
             self.spawn_timer = 0
 
             # spawn a new asteroid at a random edge

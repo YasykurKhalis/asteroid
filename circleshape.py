@@ -23,6 +23,18 @@ class CircleShape(pygame.sprite.Sprite):
         # must override
         pass
 
+    def wrap(self) -> None:
+        # once fully off one edge, reappear just off the opposite edge
+        w, h, r = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, self.radius
+        if self.position.x < -r:
+            self.position.x = w + r
+        elif self.position.x > w + r:
+            self.position.x = -r
+        if self.position.y < -r:
+            self.position.y = h + r
+        elif self.position.y > h + r:
+            self.position.y = -r
+
     def collides_with(self, other):
         if pygame.Vector2.distance_to(self.position, other.position) <= self.radius + other.radius:
             return True
